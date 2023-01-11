@@ -6,8 +6,8 @@
 
 # Importing ugame and stage to be able to
 # create the game
-import ugame
 import stage
+import ugame
 
 
 def game_scene():
