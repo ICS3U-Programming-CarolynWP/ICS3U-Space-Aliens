@@ -9,6 +9,7 @@
 import ugame
 import stage
 
+
 def game_scene():
     # Allowing the background image to be accessed
     image_bank_background = stage.Bank.from_bmp16("lizard_background.bmp")
@@ -32,6 +33,7 @@ def game_scene():
         # To render and redraw the sprites
         game.render_sprites([lizard])
         game.tick()
-    
+
+
 if __name__ == "__main__":
     game_scene()
