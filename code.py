@@ -4,11 +4,12 @@
 # The Lizard Leap Game
 
 
+import constants
+
 # Importing ugame and stage to be able to
 # create the game
 import stage
 import ugame
-import constants
 
 
 def game_scene():
