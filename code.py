@@ -12,9 +12,9 @@ import ugame
 
 def game_scene():
     # Allowing the background image to be accessed
-    image_bank_background = stage.Bank.from_bmp16("lizard_background.bmp")
+    image_bank_background = stage.Bank.from_bmp16("space_aliens_background.bmp")
     # Allowing the sprite image to be accessed
-    image_bank_sprites = stage.Bank.from_bmp16("lizard.bmp")
+    image_bank_sprites = stage.Bank.from_bmp16("space_aliens.bmp")
     # Copying the image multiple times to make a grid
     background = stage.Grid(image_bank_background, 10, 8)
     # Adding the lizard and placing it at point ()5, 66)
@@ -27,10 +27,33 @@ def game_scene():
     # Renders everything on the screen
     game.render_block()
 
-    # Will be used later
     while True:
+        # All the buttons for the game
+        keys = ugame.buttons.get_pressed()
 
-        # To render and redraw the sprites
+        # A button
+        if keys & ugame.K_X:
+            print("A button")
+        # B button
+        if keys & ugame.K_O:
+            print("B button")
+        # Start button
+        if keys & ugame.K_START:
+            print("Start button")
+        # Select button
+        if keys & ugame.K_SELECT:
+            print("Select")
+        # Movement buttons
+        if keys & ugame.K_RIGHT:
+            lizard.move(lizard.x + 1, lizard.y)
+        if keys & ugame.K_LEFT:
+            lizard.move(lizard.x - 1, lizard.y)
+        if keys & ugame.K_UP:
+            lizard.move(lizard.x, lizard.y - 1)
+        if keys & ugame.K_DOWN:
+            lizard.move(lizard.x, lizard.y + 1)
+
+        # To render and redraw the lizard sprites
         game.render_sprites([lizard])
         game.tick()
 
