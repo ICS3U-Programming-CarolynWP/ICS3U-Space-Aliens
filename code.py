@@ -8,6 +8,7 @@
 # create the game
 import stage
 import ugame
+import constants
 
 
 def game_scene():
@@ -16,12 +17,14 @@ def game_scene():
     # Allowing the sprite image to be accessed
     image_bank_sprites = stage.Bank.from_bmp16("space_aliens.bmp")
     # Copying the image multiple times to make a grid
-    background = stage.Grid(image_bank_background, 10, 8)
+    background = stage.Grid(
+        image_bank_background, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y
+    )
     # Adding the lizard and placing it at point ()5, 66)
     lizard = stage.Sprite(image_bank_sprites, 5, 75, 66)
 
     # Displaying and rendering the background which updates at 60fps
-    game = stage.Stage(ugame.display, 60)
+    game = stage.Stage(ugame.display, constants.FPS)
     # Layers on the screen
     game.layers = [lizard] + [background]
     # Renders everything on the screen
@@ -33,25 +36,34 @@ def game_scene():
 
         # A button
         if keys & ugame.K_X:
-            print("A button")
+            pass
         # B button
         if keys & ugame.K_O:
-            print("B button")
+            pass
         # Start button
         if keys & ugame.K_START:
-            print("Start button")
+            pass
         # Select button
         if keys & ugame.K_SELECT:
-            print("Select")
+            pass
         # Movement buttons
         if keys & ugame.K_RIGHT:
-            lizard.move(lizard.x + 1, lizard.y)
+            # If the lizard goes off the screen
+            if lizard.x <= constants.SCREEN_SIZE_X - constants.SPRITE_SIZE:
+                lizard.move(lizard.x + constants.SPRITE_MOVEMENT_SPEED, lizard.y)
+            else:
+                lizard.move(0, lizard.y)
         if keys & ugame.K_LEFT:
-            lizard.move(lizard.x - 1, lizard.y)
+            # If the lizard goes off the screen
+            if lizard.x >= 0:
+                lizard.move(lizard.x - constants.SPRITE_MOVEMENT_SPEED, lizard.y)
+            else:
+                lizard.move(constants.SCREEN_SIZE_X, lizard.y)
+        # Up and down will not be used
         if keys & ugame.K_UP:
-            lizard.move(lizard.x, lizard.y - 1)
+            pass
         if keys & ugame.K_DOWN:
-            lizard.move(lizard.x, lizard.y + 1)
+            pass
 
         # To render and redraw the lizard sprites
         game.render_sprites([lizard])
