@@ -12,6 +12,55 @@ import stage
 import ugame
 
 
+def menu_scene():
+    # Allowing the background image to be accessed
+    image_bank_background = stage.Bank.from_bmp16("space_aliens_background.bmp")
+
+    # Menu Scene text
+    # Text variable
+    text = []
+    # Colour, font, etc
+    text1 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text1.move(5, 20)
+    text1.text("Pine Tree Studiospresents:")
+    text.append(text1)
+    text2 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text2.move(5, 40)
+    text2.text("Lizard Leap")
+    text.append(text2)
+
+    text3 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    text3.move(5, 100)
+    text3.text("Press START to         begin!")
+    text.append(text3)
+
+    # Background grid
+    background = stage.Grid(
+        image_bank_background, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y
+    )
+    # Displaying and rendering the background which updates at 60fps
+    game = stage.Stage(ugame.display, constants.FPS)
+    # Background with text
+    game.layers = text + [background]
+    # Renders everything on the screen
+    game.render_block()
+
+    while True:
+        # if someone presses the start button, start the game_scene
+        keys = ugame.buttons.get_pressed()
+        if keys & ugame.K_START:
+            game_scene()
+
+
+# The game scene (main game)
 def game_scene():
     # Allowing the background image to be accessed
     image_bank_background = stage.Bank.from_bmp16("space_aliens_background.bmp")
@@ -53,17 +102,6 @@ def game_scene():
     # Stop sound from happening in case something happens
     sound.stop()
     sound.mute(False)
-
-    # These two will be extra functionality for later
-    background_menu = open("background.wav", "rb")
-    sound_menu = ugame.audio
-    sound_menu.stop()
-    sound_menu.mute(False)
-
-    background_game = open("background_game.wav", "rb")
-    sound_game = ugame.audio
-    sound_game.stop()
-    sound_game.mute(False)
 
     # Everything is happening 60 times a second
     while True:
@@ -121,4 +159,4 @@ def game_scene():
 
 
 if __name__ == "__main__":
-    game_scene()
+    menu_scene()
