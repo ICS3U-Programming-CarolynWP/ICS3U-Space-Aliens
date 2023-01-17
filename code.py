@@ -4,14 +4,15 @@
 # The Lizard Leap Game
 
 
+import random
+import time
+
 import constants
 
 # Importing ugame and stage to be able to
 # create the game
 import stage
 import ugame
-import time
-import random
 
 # The splash scene function
 def splash_scene():
