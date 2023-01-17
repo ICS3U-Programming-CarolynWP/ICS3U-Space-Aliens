@@ -14,6 +14,7 @@ import constants
 import stage
 import ugame
 
+
 # The splash scene function
 def splash_scene():
 
@@ -87,7 +88,7 @@ def menu_scene():
     )
     # Moving the text
     text1.move(5, 20)
-    text1.text("Happy Tree Gamespresents:")
+    text1.text("Happy Tree Games presents:")
     text.append(text1)
     text2 = stage.Text(
         width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
