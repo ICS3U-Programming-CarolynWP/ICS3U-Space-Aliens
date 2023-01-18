@@ -12,8 +12,8 @@ import constants
 # Importing ugame and stage to be able to
 # create the game
 import stage
-import ugame
 import supervisor
+import ugame
 
 
 # The splash scene function
