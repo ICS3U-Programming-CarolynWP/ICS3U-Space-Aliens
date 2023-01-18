@@ -13,6 +13,7 @@ import constants
 # create the game
 import stage
 import ugame
+import supervisor
 
 
 # The splash scene function
@@ -126,8 +127,15 @@ def menu_scene():
 # The game scene (main game)
 def game_scene():
 
-    # setting the score
+    # Initializing the score
     score = 0
+
+    # Text dimensions, colour, etc
+    score_text = stage.Text(width=29, height=14, palette=constants.RED_PALETTE)
+    score_text.clear()
+    score_text.cursor(0, 0)
+    score_text.move(1, 1)
+    score_text.text("Score = {0}".format(score))
 
     # Takes an alien from offscreen and moves to the screen
     def show_raptor():
@@ -184,7 +192,7 @@ def game_scene():
     # Displaying and rendering the background which updates at 60fps
     game = stage.Stage(ugame.display, constants.FPS)
     # Layers on the screen
-    game.layers = raptors + lasers + [lizard] + [background]
+    game.layers = [score_text] + raptors + lasers + [lizard] + [background]
     # Renders everything on the screen
     game.render_block()
 
@@ -207,6 +215,14 @@ def game_scene():
     # Stop sound from happening in case something happens
     sound.stop()
     sound.mute(False)
+
+    # Adding in the crash sound effect
+    screech = open("crash.wav", "rb")
+    sound = ugame.audio
+    # Stop sound from happening in case something happens
+    sound.stop()
+    sound.mute(False)
+
     # Everything is happening 60 times a second
     while True:
         # All the buttons for the game
@@ -290,6 +306,17 @@ def game_scene():
                         constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y
                     )
                     show_raptor()
+                    # Take away 1 from the score
+                    score -= 1
+                    # To make sure there are no negative scores
+                    if score < 0:
+                        score = 0
+                    # Reprinting the text
+                    score_text.clear()
+                    score_text.cursor(0, 0)
+                    score_text.move(1, 1)
+                    score_text.text("Score = {0}".format(score))
+
         # Determining the collision detection.
         # Putting in the coordinates for the laser and alien to
         # determine whether they are colliding.
@@ -321,10 +348,139 @@ def game_scene():
                             show_raptor()
                             # Update the score
                             score = score + 1
+                            score_text.clear()
+                            score_text.cursor(0, 0)
+                            score_text.move(1, 1)
+                            score_text.text("Score = {0}".format(score))
+
+        # If the alien hits the ship
+        for raptor_number in range(len(raptors)):
+            if raptors[raptor_number].x > 0:
+                if stage.collide(
+                    raptors[raptor_number].x + 1,
+                    raptors[raptor_number].y + 2,
+                    raptors[raptor_number].x + 16,
+                    raptors[raptor_number].y + 16,
+                    lizard.x,
+                    lizard.y,
+                    lizard.x + 16,
+                    lizard.y + 16,
+                ):
+                    sound.stop()
+                    sound.play(crash)
+                    time.sleep(3.0)
+                    # Switches to the game over scene
+                    game_over_scene(score)
+
+        # If you score 50 points
+        if score == 50:
+            sound.stop()
+            time.sleep(3.0)
+            game_win_scene()
 
         # To render and redraw the sprites
         game.render_sprites(lasers + raptors + [lizard])
         # Wait until the refresh rate is done
+        game.tick()
+
+
+def game_over_scene(final_score):
+    # To turn off the sound
+    sound = ugame.audio
+    sound.stop()
+
+    # Image banks
+    image_bank_2 = stage.Bank.from_pmb16("mt_game_studio.bmp")
+
+    # Set the background to the image at index 0
+    background = stage.Grid(
+        image_bank_2, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y
+    )
+
+    # Game over text
+    text = []
+    text1 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text1.move(5, 20)
+    text1.text("GAME OVER!")
+    text.append(text1)
+    text2 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text2.move(5, 40)
+    text2.text("Final Score: {:0>2d}".format(final_score))
+    text.append(text2)
+
+    text3 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    text3.move(5, 100)
+    text3.text("Press SELECT to restart!")
+    text.append(text3)
+
+    # Stage for the background, framerate at 60FPS
+    game = stage.Stage(ugame.display, constants.FPS)
+    # Layers for the screen
+    game.layers = text + [background]
+    # Rendering the background
+    game.render_block()
+
+    while True:
+        # If the select button is selected
+        keys = ugame.buttons.get_pressed()
+        if keys & ugame.K_SELECT != 0:
+            supervisor.reload()
+        # Update the game logic
+        game.tick()
+
+
+def game_win_scene():
+    # To turn off the sound
+    sound = ugame.audio
+    sound.stop()
+
+    # Image banks
+    image_bank_2 = stage.Bank.from_pmb16("mt_game_studio.bmp")
+
+    # Set the background to the image at index 0
+    background = stage.Grid(
+        image_bank_2, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y
+    )
+
+    # Game over text
+    text = []
+    text1 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text1.move(5, 20)
+    text1.text("YOU WIN! THE LIZARD IS SAVED!")
+    text.append(text1)
+
+    text2 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text2.move(5, 40)
+    text2.text("Press SELECT to restart!")
+    text.append(text2)
+
+    # Stage for the background, framerate at 60FPS
+    game = stage.Stage(ugame.display, constants.FPS)
+    # Layers for the screen
+    game.layers = text + [background]
+    # Rendering the background
+    game.render_block()
+
+    while True:
+        # If the select button is selected
+        keys = ugame.buttons.get_pressed()
+        if keys & ugame.K_SELECT != 0:
+            supervisor.reload()
+        # Update the game logic
         game.tick()
 
 

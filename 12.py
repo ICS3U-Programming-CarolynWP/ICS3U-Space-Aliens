@@ -129,6 +129,15 @@ def game_scene():
     # setting the score
     score = 0
 
+    # Initializing the score
+    score = 0
+    # Text dimensions, colour, etc
+    score_text = stage.Text(width=29, height=14, palette=constants.RED_PALETTE)
+    score_text.clear()
+    score_text.cursor(0, 0)
+    score_text.move(1, 1)
+    score_text.text("Score = {0}".format(score))
+
     # Takes an alien from offscreen and moves to the screen
     def show_raptor():
         for raptor_number in range(len(raptors)):
@@ -184,7 +193,7 @@ def game_scene():
     # Displaying and rendering the background which updates at 60fps
     game = stage.Stage(ugame.display, constants.FPS)
     # Layers on the screen
-    game.layers = raptors + lasers + [lizard] + [background]
+    game.layers = [score_text] + raptors + lasers + [lizard] + [background]
     # Renders everything on the screen
     game.render_block()
 
@@ -290,6 +299,17 @@ def game_scene():
                         constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y
                     )
                     show_raptor()
+                    # Take away 1 from the score
+                    score -= 1
+                    # To make sure there are no negative scores
+                    if score < 0:
+                        score = 0
+                    # Reprinting the text
+                    score_text.clear()
+                    score_text.cursor(0, 0)
+                    score_text.move(1, 1)
+                    score_text.text("Score = {0}".format(score))
+
         # Determining the collision detection.
         # Putting in the coordinates for the laser and alien to
         # determine whether they are colliding.
@@ -321,6 +341,10 @@ def game_scene():
                             show_raptor()
                             # Update the score
                             score = score + 1
+                            score_text.clear()
+                            score_text.cursor(0, 0)
+                            score_text.move(1, 1)
+                            score_text.text("Score = {0}".format(score))
 
         # To render and redraw the sprites
         game.render_sprites(lasers + raptors + [lizard])
