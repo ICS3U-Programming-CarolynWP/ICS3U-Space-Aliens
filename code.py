@@ -12,6 +12,7 @@ import constants
 # Importing ugame and stage to be able to
 # create the game
 import stage
+import supervisor
 import ugame
 
 
@@ -101,8 +102,10 @@ def menu_scene():
     text3 = stage.Text(
         width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
     )
-    text3.move(5, 100)
-    text3.text("Press START to         begin!")
+    text3.move(5, 60)
+    text3.text(
+        "hit the dinosaurswith A. Move withL/R buttons.     Don't get hit.   Score 25 to win! Press START to   begin!"
+    )
     text.append(text3)
 
     # Background grid
@@ -126,11 +129,9 @@ def menu_scene():
 # The game scene (main game)
 def game_scene():
 
-    # setting the score
-    score = 0
-
     # Initializing the score
     score = 0
+
     # Text dimensions, colour, etc
     score_text = stage.Text(width=29, height=14, palette=constants.RED_PALETTE)
     score_text.clear()
@@ -174,10 +175,14 @@ def game_scene():
 
     # Adding the raptors to the game, stored in a list.
     raptors = []
+    counter = 6
     for raptor_number in range(constants.TOTAL_NUMBER_OF_ALIENS):
         a_single_raptor = stage.Sprite(
-            image_bank_sprites, 9, constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y
+            image_bank_sprites, counter, constants.OFF_SCREEN_X, constants.OFF_SCREEN_Y
         )
+        counter = counter + 1
+        if counter == 10:
+            counter = 6
         raptors.append(a_single_raptor)
     # Display 1 raptor on the screen
     show_raptor()
@@ -216,6 +221,20 @@ def game_scene():
     # Stop sound from happening in case something happens
     sound.stop()
     sound.mute(False)
+
+    # Adding in the crash sound effect
+    crash = open("crash.wav", "rb")
+    sound = ugame.audio
+    # Stop sound from happening in case something happens
+    sound.stop()
+    sound.mute(False)
+
+    # The win sound effect
+    win = open("win.wav", "rb")
+    sound = ugame.audio
+    sound.stop()
+    sound.mute(False)
+
     # Everything is happening 60 times a second
     while True:
         # All the buttons for the game
@@ -346,9 +365,135 @@ def game_scene():
                             score_text.move(1, 1)
                             score_text.text("Score = {0}".format(score))
 
+        # If the alien hits the ship
+        for raptor_number in range(len(raptors)):
+            if raptors[raptor_number].x > 0:
+                if stage.collide(
+                    raptors[raptor_number].x + 1,
+                    raptors[raptor_number].y + 2,
+                    raptors[raptor_number].x + 16,
+                    raptors[raptor_number].y + 16,
+                    lizard.x,
+                    lizard.y,
+                    lizard.x + 16,
+                    lizard.y + 16,
+                ):
+                    sound.stop()
+                    sound.play(crash)
+                    time.sleep(6.0)
+                    # Switches to the game over scene
+                    game_over_scene(score)
+
+        # If you score is 30 points
+        if score == 10:
+            sound.stop()
+            sound.play(win)
+            time.sleep(5.0)
+            game_win_scene()
+
         # To render and redraw the sprites
         game.render_sprites(lasers + raptors + [lizard])
         # Wait until the refresh rate is done
+        game.tick()
+
+
+def game_over_scene(final_score):
+    # To turn off the sound
+    sound = ugame.audio
+    sound.stop()
+
+    # Image banks
+    image_bank_2 = stage.Bank.from_bmp16("game_over.bmp")
+
+    # Set the background to the image at index 0
+    background = stage.Grid(
+        image_bank_2, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y
+    )
+
+    # Game over text
+    text = []
+    text1 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text1.move(5, 20)
+    text1.text("GAME OVER!")
+    text.append(text1)
+    text2 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text2.move(5, 40)
+    text2.text("Final Score: {:0>2d}".format(final_score))
+    text.append(text2)
+
+    text3 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    text3.move(5, 100)
+    text3.text("Press SELECT to    restart!")
+    text.append(text3)
+
+    # Stage for the background, framerate at 60FPS
+    game = stage.Stage(ugame.display, constants.FPS)
+    # Layers for the screen
+    game.layers = text + [background]
+    # Rendering the background
+    game.render_block()
+
+    while True:
+        # If the select button is selected
+        keys = ugame.buttons.get_pressed()
+        if keys & ugame.K_SELECT != 0:
+            supervisor.reload()
+        # Update the game logic
+        game.tick()
+
+
+def game_win_scene():
+    # To turn off the sound
+    sound = ugame.audio
+    sound.stop()
+
+    # Image banks
+    image_bank_2 = stage.Bank.from_bmp16("game_win.bmp")
+
+    # Set the background to the image at index 0
+    background = stage.Grid(
+        image_bank_2, constants.SCREEN_GRID_X, constants.SCREEN_GRID_Y
+    )
+
+    # Game over text
+    text = []
+    text1 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text1.move(5, 20)
+    text1.text("YOU WIN! THE     LIZARD IS SAVED!")
+    text.append(text1)
+
+    text2 = stage.Text(
+        width=17, height=11, font=None, palette=constants.RED_PALETTE, buffer=None
+    )
+    # Moving the text
+    text2.move(5, 70)
+    text2.text("Press SELECT to    restart!")
+    text.append(text2)
+
+    # Stage for the background, framerate at 60FPS
+    game = stage.Stage(ugame.display, constants.FPS)
+    # Layers for the screen
+    game.layers = text + [background]
+    # Rendering the background
+    game.render_block()
+
+    while True:
+        # If the select button is selected
+        keys = ugame.buttons.get_pressed()
+        if keys & ugame.K_SELECT != 0:
+            supervisor.reload()
+        # Update the game logic
         game.tick()
 
 
